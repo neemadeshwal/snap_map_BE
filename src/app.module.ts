@@ -14,6 +14,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { JobsModule } from './jobs/jobs.module';
 import { BullModule } from '@nestjs/bullmq';
 import { TrendingModule } from './trending/trending.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -42,7 +43,9 @@ import { TrendingModule } from './trending/trending.module';
    
     JobsModule,
    
-    TrendingModule],
+    TrendingModule,
+   
+    SearchModule],
   controllers: [AppController],
   providers: [{
     provide:APP_GUARD,
