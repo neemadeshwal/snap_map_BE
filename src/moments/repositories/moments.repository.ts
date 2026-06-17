@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateMomentDto } from '../dto/create-moment.dto';
-import { date } from 'joi';
 
 @Injectable()
 export class MomentsRepository {
