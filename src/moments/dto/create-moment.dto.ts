@@ -21,5 +21,9 @@ export class CreateMomentDto {
     @IsDateString()
     expiresAt!:number;
 
+    @IsString()
+    @IsOptional()
+    idempotencyKey?: string;
+
 
 }

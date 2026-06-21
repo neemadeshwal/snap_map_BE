@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { CreateMomentDto } from './dto/create-moment.dto';
 import { ReactionType, ReactMomentDto } from './dto/react-moment.dto';
 import { MomentsRepository } from './repositories/moments.repository';
+import { RedisService } from 'src/redis/redis.service';
 
 function livenessScore(postedAt: Date, expiresAt: Date): number {
   const total = expiresAt.getTime() - postedAt.getTime();
@@ -10,13 +11,20 @@ function livenessScore(postedAt: Date, expiresAt: Date): number {
 }
 @Injectable()
 export class MomentsService {
-  constructor(private momentsRepository:MomentsRepository){}
+  constructor(private momentsRepository:MomentsRepository,private redis:RedisService){}
  async create(uid:string,dto: CreateMomentDto) {
+
+  if(dto.idempotencyKey){
+      const cached = await this.redis.get(`idempotency:${dto.idempotencyKey}`);
+      if(cached) return JSON.parse(cached)
+  }
     
     const moment=await this.momentsRepository.create(uid,dto);
        // update PostGIS location column via raw SQL
     await this.momentsRepository.updateLocation(moment.id, dto.latitude, dto.longitude);
-   
+    if (dto.caption) {
+    await this.momentsRepository.extractAndSaveHashtags(moment.id, dto.caption);
+  }
     return moment;
   }
 

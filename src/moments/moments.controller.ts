@@ -12,12 +12,14 @@ import { MomentsService } from './moments.service';
 import { CreateMomentDto } from './dto/create-moment.dto';
 import { ReactMomentDto } from './dto/react-moment.dto';
 import { Request } from 'express';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('moments')
 export class MomentsController {
   constructor(private readonly momentsService: MomentsService) {}
 
   @Post()
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
   create(@Req() req: Express.Request, @Body() dto: CreateMomentDto) {
     return this.momentsService.create(req.user.uid, dto);
   }

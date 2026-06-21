@@ -142,4 +142,37 @@ export class MomentsRepository {
         take:100
     })
   }
+
+  async extractAndSaveHashtags(momentId:string,caption:string){
+
+    const tags=caption.match(/#\w+/g)??[];
+
+    if(tags.length==0) return;
+
+    for(const tag of tags){
+      const name=tag.slice(1).toLowerCase();
+
+      const hashtag=await this.db.hashtag.upsert({
+        where:{
+          name
+        },
+        update:{},
+        create:{name}
+      })
+
+      await this.db.momentHashtag.upsert({
+        where:{
+          momentId_hashtagId:{
+            momentId,
+            hashtagId:hashtag.id
+          }
+        },
+        update:{},
+        create:{
+          momentId,
+          hashtagId:hashtag.id
+        }
+      })
+    }
+  }
 }
